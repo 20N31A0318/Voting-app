@@ -3,7 +3,7 @@
     "username": "postgres",
     "password": "hemanth22122",
     "database": "voting-dev",
-    "loggin":false,
+    "loggin": false,
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
@@ -11,7 +11,7 @@
     "username": "postgres",
     "password": "hemanth22122",
     "database": "voting-test",
-    "loggin":false,
+    "loggin": false,
     "host": "127.0.0.1",
     "dialect": "postgres"
   },

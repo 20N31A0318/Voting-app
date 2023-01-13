@@ -11,6 +11,16 @@ app.use(express.static(path.join(__dirname, "public")));
 const { elections } = require("./models");
 app.set("view engine", "ejs");
 
+app.get("/elections/:id", async function (request, response) {
+  try {
+    const election = await elections.findByPk(request.params.id);
+    return response.json(election);
+  } catch (error) {
+    console.log(error);
+    return response.status(422).json(error);
+  }
+});
+
 app.get("/", async (request, response) => {
   const allElections = await elections.getElections();
   if (request.accepts("html")) {
