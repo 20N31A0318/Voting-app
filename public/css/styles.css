@@ -4,6 +4,6 @@ body {
   /* font-family: "Courier New", Courier, monospace; */
 }
 
-.election-item:hover .results-icon{
+.election-item:hover .results-icon {
   display: block;
 }
