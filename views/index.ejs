@@ -5,28 +5,21 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" contents="<%=csrfToken%>">
     <link rel="stylesheet" href="./css/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Voting</title>
+    <title>
+        <%=title%>
+    </title>
 </head>
 
 <body>
     <div class="flex justify-center">
         <div class="w-[300px]">
             <%- include('header.ejs')%>
-                <form action="">
-                    <div class="flex gap-2 py-4">
-                        <div class="flex-auto">
-                            <input type="text" placeholder="Whom to elect next?"
-                                class="border border-gray-300 rounded text-gray-900 w-full p-2 text-sm">
-                        </div>
-                        <div class="flex-none">
-                            <button type="submit"
-                                class="bg-blue-600 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create</button>
-                        </div>
-                    </div>
-                </form>
-                <%- include ('elections.ejs')%>
+                <p>Welcome to "Vote it out"</p>
+                <p>New here? <a href="/signup">Sign-up now</a></p>
+                <p>Already an user? <a href="/login">Login now</a></p>
         </div>
     </div>
 </body>

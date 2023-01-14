@@ -9,15 +9,44 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      elections.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
       // define association here
     }
 
-    static addElection({ title }) {
-      return this.create({ title: title, completed: false });
+    static addElection({ title, userId }) {
+      return this.create({ title: title, completed: false, userId });
     }
 
-    static getElections() {
-      return this.findAll();
+    static getElections(userId) {
+      return this.findAll({
+        where: {
+          userId,
+        },
+      });
+    }
+
+    static completedItems(userId) {
+      return this.findAll({
+        where: {
+          completed: true,
+          userId,
+        },
+
+        // order: [["id", "ASC"]],
+      });
+    }
+
+    static inCompleteItems(userId) {
+      return this.findAll({
+        where: {
+          completed: false,
+          userId,
+        },
+
+        // order: [["id", "ASC"]],
+      });
     }
 
     static getElection(userId) {
