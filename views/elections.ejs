@@ -17,7 +17,7 @@
   <div class="flex justify-center">
     <div class="w-[300px]">
       <%- include('header.ejs')%>
-      <a href="/signout">Signout</a>
+        <a href="/signout">Signout</a>
         <form action="/elections" method="post">
           <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
           <div class="flex gap-2 py-4">
@@ -26,10 +26,10 @@
                 class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm" required>
             </div>
             <div class="flex-none">
-              <a href="/createElection">
-                <button
-                  class="bg-blue-600 hover:bg-blue-800 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create</button>
-              </a>
+
+              <button
+                class="bg-blue-600 hover:bg-blue-800 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create</button>
+
             </div>
           </div>
         </form>
