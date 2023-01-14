@@ -3,6 +3,7 @@ const express = require("express");
 var csrf = require("tiny-csrf");
 const app = express();
 const path = require("path");
+app.set("views", path.join(__dirname, "views"));
 //the below code of body parser is used to parse the "request.body" in the post request.
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
@@ -10,6 +11,7 @@ var cookieParser = require("cookie-parser");
 const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
+const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 
@@ -21,6 +23,7 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser("shh! some secret string"));
 app.use(csrf("12345678912345678912345678912345", ["POST", "PUT"]));
+app.use(flash());
 
 app.set("view engine", "ejs");
 
@@ -35,6 +38,11 @@ app.use(
   })
 );
 
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -47,11 +55,14 @@ passport.use(
     (username, password, done) => {
       User.findOne({ where: { email: username } })
         .then(async (user) => {
+          if (!user) {
+            return done(null, false, { message: "Invalid username" });
+          }
           const result = await bcrypt.compare(password, user.password);
           if (result) {
             return done(null, user);
           } else {
-            return done("Invalid Password");
+            return done(null, false, { message: "Invalid password" });
           }
         })
         .catch((error) => {
@@ -79,10 +90,18 @@ passport.deserializeUser((id, done) => {
 const user = require("./models/user");
 
 app.get("/", async (request, response) => {
-  response.render("index", {
-    title: "Vote it out",
-    csrfToken: request.csrfToken(),
-  });
+  if (request.user && request.user.id) {
+    response.redirect("/elections");
+  } else {
+    response.render("index", {
+      title: "Vote it out",
+      csrfToken: request.csrfToken(),
+    });
+  }
+  // response.render("index", {
+  //   title: "Vote it out",
+  //   csrfToken: request.csrfToken(),
+  // });
 });
 
 app.get(
@@ -118,7 +137,6 @@ app.get("/signup", (request, response) => {
 
 app.post("/users", async (request, response) => {
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
-  console.log(hashedPwd);
   try {
     const user = await User.create({
       firstName: request.body.firstName,
@@ -133,7 +151,10 @@ app.post("/users", async (request, response) => {
       response.redirect("/elections");
     });
   } catch (error) {
-    console.log(error);
+    error.errors.forEach((element) => {
+      request.flash("error", element.message);
+    });
+    response.redirect("signup");
   }
 });
 
@@ -150,14 +171,13 @@ app.get("/login", (request, response) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", { failureRedirect: "/login" }),
-  (request, response) => {
-    try {
-      console.log(request.user);
-      response.redirect("/elections");
-    } catch (error) {
-      console.log(error);
-    }
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  function (request, response) {
+    console.log(request.user);
+    response.redirect("/elections");
   }
 );
 
@@ -219,7 +239,10 @@ app.post(
       return response.redirect("/elections");
     } catch (error) {
       console.log(error);
-      return response.status(422).json(error);
+      error.errors.forEach((element) => {
+        request.flash("error", element.message);
+      });
+      response.redirect("/elections");
     }
   }
 );

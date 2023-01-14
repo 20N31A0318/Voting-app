@@ -64,7 +64,18 @@ module.exports = (sequelize, DataTypes) => {
   }
   elections.init(
     {
-      title: DataTypes.STRING,
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notNull: {
+            msg: "Title is mandatory",
+          },
+          notEmpty: {
+            msg: "Title is mandatory",
+          },
+        },
+      },
       completed: DataTypes.BOOLEAN,
     },
     {

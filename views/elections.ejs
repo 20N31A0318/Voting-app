@@ -17,13 +17,12 @@
   <div class="flex justify-center">
     <div class="w-[300px]">
       <%- include('header.ejs')%>
-        <a href="/signout">Signout</a>
         <form action="/elections" method="post">
           <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
-          <div class="flex gap-2 py-4">
+          <div class="flex gap-2 py-2">
             <div class="flex-auto">
               <input type="text" name="title" placeholder="Whom to elect next?"
-                class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm" required>
+                class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm">
             </div>
             <div class="flex-none">
 
@@ -33,9 +32,19 @@
             </div>
           </div>
         </form>
-        <%- include ('election.ejs', {title:"Previous elections", data : previous})%>
-          <%- include ('election.ejs', {title:"Ongoing elections", data : onGoing})%>
+        <div class="mb-2">
+          <% if(messages && messages.error && messages.error.length > 0)  { %>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+                    <li> <%= messages.error[i] %></li>
+            <% } %>
+          <% } %>
+        </div>
+        <div class="mb-2"><%- include ('election.ejs', {title:"Previous elections", data : previous})%></div>
+        <div class="mb-2"><%- include ('election.ejs', {title:"Ongoing elections", data : onGoing})%></div>
+        <div class="py-2"><a href="/signout" class="rounded text-white py-2 px-5 bg-red-600 hover:bg-red-800">Signout</a></div>
+          
     </div>
+    
   </div>
 </body>
 
