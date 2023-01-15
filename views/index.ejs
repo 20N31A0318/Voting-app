@@ -11,15 +11,40 @@
     <title>
         <%=title%>
     </title>
+    <script>
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        const updateElection = (id, completed) => {
+            fetch(`/elections/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "_csrf": token,
+                    "completed": completed
+                }),
+            })
+                .then((data) => {
+                    window.location.reload();
+                    console.log("window reloaded")
+                })
+                .catch((err) => console.error(err))
+        }
+    </script>
 </head>
 
 <body>
     <div class="flex justify-center">
         <div class="w-[300px]">
             <%- include('header.ejs')%>
-                <p>Welcome to "Vote it out"</p>
-                <p>New here? <a href="/signup">Sign-up now</a></p>
-                <p>Already an user? <a href="/login">Login now</a></p>
+                <p class=" text-xl pb-2">Welcome to "Vote it out"</p>
+                <p class="text-xl">New here? 
+                    <div class="py-2 w-full">
+                        <a href="/signup" class="text-lg text-center block font-bold ease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full ">Sign up now</a>
+                    </div>
+                    </p>
+                <p class="text-xl">Already an user? 
+                    <div class="py-2 w-full">
+                        <a href="/login" class="text-lg text-center block font-bold ease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full ">Login now</a>
+                    </div></p>
         </div>
     </div>
 </body>

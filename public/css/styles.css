@@ -5,5 +5,11 @@ body {
 }
 
 .election-item:hover .results-icon {
+  color: green;
+  display: block;
+}
+
+.election-item:hover .stop-icon {
+  color: red;
   display: block;
 }

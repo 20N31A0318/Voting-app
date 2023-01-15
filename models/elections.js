@@ -58,8 +58,14 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
 
-    markAsCompleted() {
-      return this.update({ completed: true });
+    setElectionUpdationStatus(completed, userId) {
+      if (this.userId === userId) {
+        return this.update({
+          completed: true,
+        });
+      } else {
+        throw new Error("Unauthorized");
+      }
     }
   }
   elections.init(

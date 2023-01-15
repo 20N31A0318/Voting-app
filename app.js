@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
-    secret: "my-super-secret-key-3479304573",
+    secret: "idk-why-i-have-to-put-in-this-secret-code-3479304573",
     cookie: {
       maxAge: 24 * 60 * 60,
     },
@@ -98,20 +98,16 @@ app.get("/", async (request, response) => {
       csrfToken: request.csrfToken(),
     });
   }
-  // response.render("index", {
-  //   title: "Vote it out",
-  //   csrfToken: request.csrfToken(),
-  // });
 });
 
 app.get(
   "/elections",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    const loggedInUser = request.user.id;
-    console.log(loggedInUser);
-    const previous = await elections.completedItems(loggedInUser);
-    const onGoing = await elections.inCompleteItems(loggedInUser);
+    const UserWhoIsLoggedin = request.user.id;
+    console.log(UserWhoIsLoggedin);
+    const previous = await elections.completedItems(UserWhoIsLoggedin);
+    const onGoing = await elections.inCompleteItems(UserWhoIsLoggedin);
     if (request.accepts("html")) {
       response.render("elections", {
         title: "Vote it out",
@@ -176,7 +172,6 @@ app.post(
     failureFlash: true,
   }),
   function (request, response) {
-    console.log(request.user);
     response.redirect("/elections");
   }
 );
@@ -214,6 +209,13 @@ app.get(
   }
 );
 
+app.get("/createElection", (request, response) => {
+  response.render("createElection", {
+    title: "Create new election",
+    csrfToken: request.csrfToken(),
+  });
+});
+
 app.get("/elections/:id", async function (request, response) {
   try {
     const election = await elections.findByPk(request.params.id);
@@ -225,7 +227,7 @@ app.get("/elections/:id", async function (request, response) {
 });
 
 app.post(
-  "/elections",
+  "/createElection",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     console.log("Creating a election", request.body);
@@ -242,29 +244,42 @@ app.post(
       error.errors.forEach((element) => {
         request.flash("error", element.message);
       });
-      response.redirect("/elections");
+      response.redirect("/createElection");
     }
   }
 );
 
 app.put(
-  "/elections/:id/updateElection",
+  "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log("Update a election:", request.params.id);
+    console.log("Update an election:", request.params.id);
     const Election = await elections.findByPk(request.params.id);
+    const completed = request.body.completed;
     try {
-      const updatedELection = await Election.markAsCompleted();
-      return response.json(updatedELection);
+      console.log("Election before updation", Election);
+      const updatedElection = await Election.setElectionUpdationStatus(
+        completed === true,
+        request.user.id
+      );
+      console.log("updated election", updatedElection);
+      return response.json(updatedElection);
     } catch (error) {
       console.log(error);
-      return response.status(422).json(error);
+      return response.status(404).json(error);
     }
   }
 );
 
-// app.delete("/todos/:id", (request, response) => {
-//     console.log("Delete a question by id:", request.params.id)
-// })
+app.get(
+  "/ViewResults",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    response.render("ViewResults", {
+      title: "Results",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 module.exports = app;

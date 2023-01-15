@@ -9,14 +9,14 @@ const app = require("../app");
 
 let server, agent;
 
-const extractCSRFToken = (html) => {
+const extractCsrfToken = (html) => {
   const $ = cheerio.load(html);
   return $("[name=_csrf]").val();
 };
 
 const login = async (agentt, email, password) => {
   const res = await agentt.get("/login");
-  const csrfToken = extractCSRFToken(res.text);
+  const csrfToken = extractCsrfToken(res.text);
   const a = await agentt.post("/session").send({
     email,
     password,
@@ -45,7 +45,7 @@ describe("Election test suite", () => {
 
   test("Sign up", async () => {
     let res = await agent.get("/login");
-    let csrfToken = extractCSRFToken(res.text);
+    let csrfToken = extractCsrfToken(res.text);
     res = await agent.post("/users").send({
       firstName: "Test",
       lastName: "User A",
@@ -55,7 +55,7 @@ describe("Election test suite", () => {
     });
     expect(res.statusCode).toBe(302);
     res = await agent.get("/login");
-    csrfToken = extractCSRFToken(res.text);
+    csrfToken = extractCsrfToken(res.text);
     res = await agent.post("/users").send({
       firstName: "Akss",
       lastName: "D",
@@ -78,10 +78,10 @@ describe("Election test suite", () => {
   test("creates an election", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "password");
-    const { text } = await agent.get("/elections");
-    const csrfToken = extractCSRFToken(text);
+    const { text } = await agent.get("/createElection");
+    const csrfToken = extractCsrfToken(text);
 
-    const response = await agent.post("/elections").send({
+    const response = await agent.post("/createElection").send({
       title: "President election",
       completed: false,
       _csrf: csrfToken,
@@ -92,9 +92,9 @@ describe("Election test suite", () => {
   test("Mark an election as complete", async () => {
     const agent = request.agent(server);
     await login(agent, "user.a@test.com", "password");
-    let res = await agent.get("/elections");
-    let csrfToken = extractCSRFToken(res.text);
-    await agent.post("/elections").send({
+    let res = await agent.get("/createElection");
+    let csrfToken = extractCsrfToken(res.text);
+    await agent.post("/createElection").send({
       title: "Non-President election",
       completed: false,
       _csrf: csrfToken,
@@ -104,37 +104,40 @@ describe("Election test suite", () => {
       .get("/allelections")
       .set("Accept", "application/json");
     console.log(groupedElectionsResponse);
-    const parsedGroupedResponse = JSON.parse(groupedElectionsResponse.text);
-    console.log(parsedGroupedResponse);
-    const electionCount = parsedGroupedResponse.length;
-    const latestElection = parsedGroupedResponse[electionCount - 1];
+    const parsedElectionResponse = JSON.parse(groupedElectionsResponse.text);
+    console.log(parsedElectionResponse);
+    const electionCount = parsedElectionResponse.length;
+    const latestElection = parsedElectionResponse[electionCount - 1];
+    console.log(latestElection);
 
-    res = await agent.get("/elections");
-    csrfToken = extractCSRFToken(res.text);
+    res = await agent.get("/createElection");
+    csrfToken = extractCsrfToken(res.text);
 
-    const markCompleteResponse = await agent
-      .put(`/elections/${latestElection.id}/updateElection`)
+    const updateElectionResponse = await agent
+      .put(`/elections/${latestElection.id}`)
       .send({
         _csrf: csrfToken,
       });
 
-    const parsedUpdateResponse = JSON.parse(markCompleteResponse.text);
-    expect(parsedUpdateResponse.completed).toBe(true);
+    const parsedUpdateElectionResponse = JSON.parse(
+      updateElectionResponse.text
+    );
+    expect(parsedUpdateElectionResponse.completed).toBe(true);
   });
 
-  // test("Fetches all elections in the database using /elections endpoint", async () => {
-  //   await agent.post("/elections").send({
-  //     title: "Class election",
-  //     completed: false,
-  //   });
-  //   await agent.post("/elections").send({
-  //     title: "Student election",
-  //     completed: false,
-  //   });
-  //   const response = await agent.get("/elections");
-  //   const parsedResponse = JSON.parse(response.text);
-  //   console.log(parsedResponse);
-  //   expect(parsedResponse.length).toBe(3);
-  //   expect(parsedResponse[3]["title"]).toBe("Student election");
-  // });
+  test("Fetches all elections in the database using /allelections endpoint", async () => {
+    const agent = request.agent(server);
+    await login(agent, "user.a@test.com", "password");
+    let res = await agent.get("/createElection");
+    let csrfToken = extractCsrfToken(res.text);
+    await agent.post("/createElection").send({
+      title: "Class election",
+      completed: false,
+      _csrf: csrfToken,
+    });
+    const allElectionsResponse = await agent.get("/allelections");
+    const parsedAllElectionsResponse = JSON.parse(allElectionsResponse.text);
+    expect(parsedAllElectionsResponse.length).toBe(3);
+    expect(parsedAllElectionsResponse[2]["title"]).toBe("Class election");
+  });
 });
