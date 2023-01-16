@@ -27,6 +27,21 @@
         })
         .catch((err) => console.error(err))
     }
+
+    const deleteElection = (id) => {
+            fetch(`/elections/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            })
+                .then((data) => {
+                    window.location.reload()
+                })
+        }
   </script>
 </head>
 

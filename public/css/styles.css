@@ -13,3 +13,7 @@ body {
   color: red;
   display: block;
 }
+
+.election-item:hover .delete-icon {
+  display: block;
+}

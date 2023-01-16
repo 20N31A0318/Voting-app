@@ -67,6 +67,14 @@ module.exports = (sequelize, DataTypes) => {
         throw new Error("Unauthorized");
       }
     }
+
+    removeElection(userId) {
+      if (this.userId === userId) {
+        return this.destroy();
+      } else {
+        throw new Error("Unauthorized");
+      }
+    }
   }
   elections.init(
     {

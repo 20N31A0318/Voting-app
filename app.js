@@ -209,12 +209,16 @@ app.get(
   }
 );
 
-app.get("/createElection", (request, response) => {
-  response.render("createElection", {
-    title: "Create new election",
-    csrfToken: request.csrfToken(),
-  });
-});
+app.get(
+  "/createElection",
+  connectEnsureLogin.ensureLoggedIn(),
+  (request, response) => {
+    response.render("createElection", {
+      title: "Create new election",
+      csrfToken: request.csrfToken(),
+    });
+  }
+);
 
 app.get("/elections/:id", async function (request, response) {
   try {
@@ -279,6 +283,20 @@ app.get(
       title: "Results",
       csrfToken: request.csrfToken(),
     });
+  }
+);
+
+app.delete(
+  "/elections/:id",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, resposne) => {
+    try {
+      const election = await elections.findByPk(request.params.id);
+      await election.removeElection(request.user.id);
+      return resposne.json({ success: true });
+    } catch (error) {
+      return resposne.status(404).json({ success: true });
+    }
   }
 );
 
