@@ -15,7 +15,8 @@ const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 
-const { elections, User } = require("./models");
+const { elections, User, Questions, options } = require("./models");
+const { PassThrough } = require("stream");
 
 const saltRounds = 10;
 
@@ -86,8 +87,6 @@ passport.deserializeUser((id, done) => {
       done(error, null);
     });
 });
-
-const user = require("./models/user");
 
 app.get("/", async (request, response) => {
   if (request.user && request.user.id) {
@@ -185,17 +184,6 @@ app.get("/signout", (request, response, next) => {
   });
 });
 
-// app.get("/elections", async (request, response) => {
-//   console.log("Elections");
-//   try {
-//     const election = await elections.findAll();
-//     return response.send(election);
-//   } catch (error) {
-//     console.log(error);
-//     return response.status(422).json(error);
-//   }
-// });
-
 app.get(
   "/allelections",
   connectEnsureLogin.ensureLoggedIn(),
@@ -209,16 +197,12 @@ app.get(
   }
 );
 
-app.get(
-  "/createElection",
-  connectEnsureLogin.ensureLoggedIn(),
-  (request, response) => {
-    response.render("createElection", {
-      title: "Create new election",
-      csrfToken: request.csrfToken(),
-    });
-  }
-);
+app.get("/createElection", (request, response) => {
+  response.render("createElection", {
+    title: "Create new election",
+    csrfToken: request.csrfToken(),
+  });
+});
 
 app.get("/elections/:id", async function (request, response) {
   try {
@@ -230,19 +214,111 @@ app.get("/elections/:id", async function (request, response) {
   }
 });
 
+app.get("/Election/:id/createQuestions", (request, response) => {
+  response.render("createQuestions", {
+    title: "Add questions",
+    electionId: request.params.id,
+    csrfToken: request.csrfToken(),
+  });
+});
+
+app.get("/Question/:id", async (request, response) => {
+  const addedQuestion = await Questions.findOne({
+    where: { id: request.params.id },
+  });
+  console.log(addedQuestion);
+  response.render("addOptions", {
+    title: "Add options",
+    questionbody: addedQuestion,
+    questionId: request.params.id,
+    csrfToken: request.csrfToken(),
+  });
+});
+
+app.get("/Election/:id/editQuestions", async (request, response) => {
+  const presentQuestions = await Questions.findOne({
+    where: { electionId: request.params.id },
+  });
+  console.log(presentQuestions);
+  const allOptions = await options.findAll({
+    where: { questionId: presentQuestions.id },
+  });
+  console.log("alloptions are", allOptions);
+  response.render("editQuestions", {
+    optionsbody: allOptions,
+    questionbody: presentQuestions,
+    title: "Edit questions",
+    csrfToken: request.csrfToken(),
+  });
+});
+
+app.post("/Question/:id/addOptions", async (request, response) => {
+  const addedOptions = request.body;
+  console.log(addedOptions);
+  const optionsLength = Object.keys(addedOptions).length;
+  const presentQuestion = await Questions.findOne({
+    where: { id: request.params.id },
+  });
+  console.log("present question id", presentQuestion);
+  try {
+    for (let i in addedOptions) {
+      if (i === "_csrf") continue;
+      var optionValue = addedOptions[i];
+      await options.addOption({
+        title: optionValue,
+        questionId: request.params.id,
+      });
+    }
+    return response.redirect(
+      `/Election/${presentQuestion.electionId}/editQuestions`
+    );
+  } catch (error) {
+    console.log(error);
+    error.errors.forEach((element) => {
+      request.flash("error", element.message);
+    });
+    response.redirect("/createElection");
+  }
+});
+
+app.post("/Election/:id/addQuestion", async (request, response) => {
+  console.log("Question request body", request.body);
+  try {
+    const election = await Questions.addQuestion({
+      question: request.body.question,
+      description: request.body.description,
+      electionId: request.params.id,
+    });
+    const newQuestion = await Questions.findOne({
+      where: { question: request.body.question },
+    });
+    console.log("New question is :", newQuestion);
+    return response.redirect(`/Question/${newQuestion.id}`);
+  } catch (error) {
+    console.log(error);
+    error.errors.forEach((element) => {
+      request.flash("error", element.message);
+    });
+    response.redirect("/createElection");
+  }
+});
+
 app.post(
   "/createElection",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
     console.log("Creating a election", request.body);
-    console.log(request.user);
     try {
-      await elections.addElection({
+      const election = await elections.addElection({
         title: request.body.title,
         completed: false,
         userId: request.user.id,
       });
-      return response.redirect("/elections");
+      const newElection = await elections.findOne({
+        where: { title: request.body.title },
+      });
+      console.log("New election is :", newElection);
+      return response.redirect(`/Election/${newElection.id}/createQuestions`);
     } catch (error) {
       console.log(error);
       error.errors.forEach((element) => {
@@ -292,9 +368,11 @@ app.delete(
   async (request, resposne) => {
     try {
       const election = await elections.findByPk(request.params.id);
-      await election.removeElection(request.user.id);
+      console.log("id from url is", request.params.id),
+        await election.removeElection(request.user.id);
       return resposne.json({ success: true });
     } catch (error) {
+      console.log("id from url is", request.params.id);
       return resposne.status(404).json({ success: true });
     }
   }

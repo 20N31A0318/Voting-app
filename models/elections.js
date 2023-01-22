@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
       elections.belongsTo(models.User, {
         foreignKey: "userId",
       });
+      elections.hasMany(models.Questions, {
+        foreignKey: "electionId",
+      });
       // define association here
     }
 

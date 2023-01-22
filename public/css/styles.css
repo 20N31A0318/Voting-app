@@ -1,7 +1,5 @@
 body {
-  /* color: grey; */
   background-color: white;
-  /* font-family: "Courier New", Courier, monospace; */
 }
 
 .election-item:hover .results-icon {
@@ -16,4 +14,14 @@ body {
 
 .election-item:hover .delete-icon {
   display: block;
+}
+
+.option-div:hover .removeOption-icon{
+  color: red;
+  display: block;
+}
+
+.a-box{
+  border:2px solid rgb(0, 85, 255);
+  border-radius: 10px;
 }
