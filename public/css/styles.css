@@ -16,12 +16,12 @@ body {
   display: block;
 }
 
-.option-div:hover .removeOption-icon{
+.option-div:hover .removeOption-icon {
   color: red;
   display: block;
 }
 
-.a-box{
-  border:2px solid rgb(0, 85, 255);
+.a-box {
+  border: 2px solid rgb(0, 85, 255);
   border-radius: 10px;
 }
