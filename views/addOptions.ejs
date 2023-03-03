@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" contents="<%=csrfToken%>">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>
+        <%=title%>
+    </title>
+</head>
+<script>
+    var count = 2
+    function addOptions() {
+        console.log('idk')
+        count += 1
+        optionsHtml = '<div id="option ' + count + ' div" class="option-div rounded flex w-fit items-center my-2 px-2 py-1 hover:bg-sky-100 block">\
+                <input placeholder="Add '+ count + ' option" type="text" name="option'+count+'" id=""\
+                    class="border border-blue-600 rounded text-gray-900 p-2 text-sm" form="options-form">\
+                <a href="" class="hidden removeOption-icon" title="Remove option">\
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">\
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />\
+                      </svg>\
+                </a>\
+            </div>'
+        var Div = document.getElementById('moreOptions')
+        Div.innerHTML += optionsHtml
+    }
+
+    function removeOption() {
+        var Div = document.getElementById('option ' + count + ' div')
+        Div.innerHTML = ""
+    }
+
+    function submitForm() {
+        document.getElementById("options-form").submit()
+    }
+</script>
+
+<body>
+    <div class="flex justify-center">
+        <div class="w-[500px]">
+            <%- include('header.ejs') %>
+                <h2 class="text-2xl text-blue-600 font-bold my-4 block ">Question:</h2>
+                <h4 class="border-soild border-2 border-blue-600 bg-blue-100 px-4 py-4 m-2 rounded-lg text-2xl test-black my-4 block "
+                    id="question">
+                    <%=questionbody.question%>
+                </h4>
+                <h2 class="text-2xl text-blue-600 font-bold my-4 block ">Description:</h2>
+                <h3 class="border-soild border-2 border-blue-600 bg-blue-100 px-4 py-4 m-2 rounded-lg text-2xl test-black my-4 block "
+                    id="description">
+                    <%=questionbody.description%>
+                </h3>
+                <h2 class="text-2xl text-blue-600 font-bold my-4 block ">Options:</h2>
+
+                <form id="options-form" action='/Question/<%=questionId%>/addOptions' method="post"></form>
+
+                <input type="hidden" name="_csrf" value="<%=csrfToken%>" form="options-form">
+
+                <div class="option-div rounded flex w-fit items-center my-2 px-2 py-1 hover:bg-sky-100 block">
+                    <input placeholder="Add 1 option" type="text" name="option1" id=""
+                        class="border border-blue-600 rounded text-gray-900 p-2 text-sm" form="options-form">
+                </div>
+
+                <div class="option-div rounded flex w-fit items-center my-2 px-2 py-1 hover:bg-sky-100 block">
+                    <input placeholder="Add 2 option" type="text" name="option2" id=""
+                        class="border border-blue-600 rounded text-gray-900 p-2 text-sm" form="options-form">
+                </div>
+
+                <!-- more options -->
+                <div id="moreOptions"></div>
+                <!-- mpore options -->
+
+                <div class="flex items-center justify-between gap-2 mt-2">
+                    <button
+                        class="text-lg text-center font-bold zease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full "
+                        onclick="addOptions(); return false">Add more options</button>
+                    <button
+                        class="text-lg text-center font-bold ease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full "
+                        onclick="addQuestion();return false">Add another question</button>
+                </div>
+
+                <div class="flex-none mt-2">
+                    <button
+                        class="text-lg text-center block font-bold ease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full" onclick="submitForm()">Submit</button>
+                </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

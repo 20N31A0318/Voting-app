@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" contents="<%=csrfToken%>" />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title><%=title%></title>
+  </head>
+
+  <script>
+    function updateQue() {
+      console.log("updateQuestionFunction");
+      updateQuestionHTML =
+        '<form id="questionUpdate" action="/questionUpdate" method="put"></form>\
+                <div>\
+                    <h2 class="text-2xl text-blue-600 font-bold my-4 block ">Question:</h2>\
+                </div>\
+                <div >\
+                    <span class="inline">\
+                        <input value ="<%=questionbody.question%>" id="editQuestionInput" type="text" name="question" placeholder="edit question" class="w-11/12 border-soild border-2 border-blue-600 px-4 py-4 rounded-lg text-2xl text-black " form="questionUpdate">\
+                    <button class="check-button" title="Done" onclick="">\
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">\
+                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />\
+                        </svg>\
+                    </button>\</span>\
+                </div>';
+      var questionDiv = document.getElementById("questionField");
+      questionDiv.innerHTML = updateQuestionHTML;
+    }
+  </script>
+
+  <body>
+    <div class="flex justify-center">
+        
+      <div class="w-[600px]">
+        <%- include('header.ejs')%>
+        <div id="questionField">
+          <div>
+            <h2 class="text-2xl text-blue-600 font-bold my-4 block">
+              Question:
+            </h2>
+          </div>
+
+          <div class="relative">
+            <h4
+              class="border-soild border-2 border-blue-600 bg-blue-100 px-4 py-4 m-2 rounded-lg text-2xl text-black my-4 block"
+              id="question"
+            >
+              <%=questionbody.question%>
+              <button
+                class="absolute inset-y-0 right-8"
+                title="Edit question"
+                onclick="updateQue()"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-6 h-6 right-0"
+                >
+                  <path
+                    d="M21.731 2.269a2.625 2.625 0 00-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 000-3.712zM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 00-1.32 2.214l-.8 2.685a.75.75 0 00.933.933l2.685-.8a5.25 5.25 0 002.214-1.32l8.4-8.4z"
+                  />
+                  <path
+                    d="M5.25 5.25a3 3 0 00-3 3v10.5a3 3 0 003 3h10.5a3 3 0 003-3V13.5a.75.75 0 00-1.5 0v5.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V8.25a1.5 1.5 0 011.5-1.5h5.25a.75.75 0 000-1.5H5.25z"
+                  />
+                </svg>
+              </button>
+            </h4>
+          </div>
+        </div>
+
+        <h2 class="text-2xl text-blue-600 font-bold my-4 block">
+          Description:
+        </h2>
+        <h3
+          class="border-soild border-2 border-blue-600 bg-blue-100 px-4 py-4 m-2 rounded-lg text-2xl test-black my-4 block"
+          id="description"
+        >
+          <%=questionbody.description%>
+        </h3>
+        <h2 class="text-2xl text-blue-600 font-bold my-4 block">Options:</h2>
+        <% var x=1%> <% for(var i in optionsbody){%>
+        <h3
+          class="border-soild border-2 border-blue-600 bg-blue-100 px-4 py-4 m-2 rounded-lg text-2xl test-black my-4 block"
+          id="description"
+        >
+          <%=x%>. <%=optionsbody[i].optionTitle%>
+        </h3>
+        <% x++ %> <%}%>
+      </div>
+    </div>
+  </body>
+</html>

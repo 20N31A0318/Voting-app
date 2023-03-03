@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" contents="<%=csrfToken%>">
+  <link rel="stylesheet" href="./css/styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>
+    <%=title%>
+  </title>
+  <script>
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('contents')
+    const updateElection = (id, completed) => {
+      fetch(`/elections/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          "_csrf": token,
+          "completed": completed
+        }),
+      })
+        .then((data) => {
+          window.location.reload();
+        })
+        .catch((err) => console.error(err))
+    }
+
+    const deleteElection = (id) => {
+            fetch(`/elections/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "_csrf": token
+                })
+            })
+                .then((data) => {
+                    window.location.reload()
+                })
+        }
+  </script>
+</head>
+
+<body>
+  <div class="flex justify-center">
+    <div class="w-[300px]">
+      <%- include('header.ejs')%>
+        <div class="pb-2">
+          <a href="/createElection"
+            class="bg-blue-600 hover:bg-blue-800 text-white px-5 py-3 rounded font-medium mr-2 mb-2">Create a new
+            election</a>
+        </div>
+        <div class="pb-2">
+          <% if(messages && messages.error && messages.error.length> 0) { %>
+            <% for(var i=0; i<messages.error.length; i++) { %>
+              <li>
+                <%= messages.error[i] %>
+              </li>
+              <% } %>
+                <% } %>
+        </div>
+        <div class="mt-2 mb-2"><%- include ('election.ejs', {title:"Previous elections", data : previous})%></div>
+        <div class="mb-2"><%- include ('election.ejs', {title:"Ongoing elections", data : onGoing})%></div>
+        <div class="py-2"><a href="/signout"
+            class="rounded text-white py-2 px-5 bg-red-600 hover:bg-red-800">Signout</a></div>
+
+    </div>
+
+  </div>
+</body>
+
+</html>

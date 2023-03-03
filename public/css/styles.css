@@ -1,0 +1,32 @@
+body {
+  background-color: white;
+}
+
+.election-item:hover .results-icon {
+  color: green;
+  display: block;
+}
+
+.election-item:hover .stop-icon {
+  color: red;
+  display: block;
+}
+
+.election-item:hover .delete-icon {
+  display: block;
+}
+
+.option-div:hover .removeOption-icon {
+  color: red;
+  display: block;
+}
+
+.a-box {
+  border: 2px solid rgb(0, 85, 255);
+  border-radius: 10px;
+}
+
+.check-button{
+  color: rgb(30, 136, 229);
+  display: inline-block;
+}

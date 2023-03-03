@@ -1,0 +1,22 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "hemanth22122",
+    "database": "owndevvoter_db",
+    "loggin": false,
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "hemanth22122",
+    "database": "voting-test",
+    "loggin": false,
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  },
+  "production": {
+    "use_env_variable": "DATABASE_URL",
+    "dialect": "postgres"
+  }
+}
