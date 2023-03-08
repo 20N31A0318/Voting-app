@@ -2,11 +2,7 @@
   "development": {
     "username": "postgres",
     "password": "hemanth22122",
-<<<<<<< HEAD
     "database": "owndevvoter_db",
-=======
-    "database": "voting-dev",
->>>>>>> origin/master
     "loggin": false,
     "host": "127.0.0.1",
     "dialect": "postgres"
