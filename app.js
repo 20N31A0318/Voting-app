@@ -17,6 +17,7 @@ const bcrypt = require("bcrypt");
 
 const { elections, User, Questions, options } = require("./models");
 const { PassThrough } = require("stream");
+const questions = require("./models/questions");
 
 const saltRounds = 10;
 
@@ -335,16 +336,33 @@ app.put(
   "/elections/:id",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
-    console.log("Update an election:", request.params.id);
     const Election = await elections.findByPk(request.params.id);
     const completed = request.body.completed;
     try {
-      console.log("Election before updation", Election);
       const updatedElection = await Election.setElectionUpdationStatus(
         completed === true,
         request.user.id
       );
-      console.log("updated election", updatedElection);
+      return response.json(updatedElection);
+    } catch (error) {
+      console.log(error);
+      return response.status(404).json(error);
+    }
+  }
+);
+
+app.put(
+  "/updateQuestion/:id/:questionId",
+  connectEnsureLogin.ensureLoggedIn(),
+  async (request, response) => {
+    const Election = await elections.findByPk(request.params.id);
+    const Question = await questions.findByPk(request.params.questionId)
+    const questionEdit = request.body.edit;
+    try {
+      const updatedQuestion = await Question.updateQuestion(
+        request.user.id,
+        request.user.questionId
+      );
       return response.json(updatedElection);
     } catch (error) {
       console.log(error);

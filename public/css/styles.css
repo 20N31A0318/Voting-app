@@ -30,3 +30,15 @@ body {
   color: rgb(30, 136, 229);
   display: inline-block;
 }
+
+.hr-element{
+  width: 110%;
+  margin-left: -25px;
+  height: 1px;
+  color: black;
+  position: relative;
+  top: 2px;
+  border: none;
+  background: black;
+  margin-bottom: 10px;
+}

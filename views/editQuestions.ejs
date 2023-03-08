@@ -11,7 +11,22 @@
   </head>
 
   <script>
-    function updateQue() {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('contents')
+    const generateQuestionPUTrequest = (id,questionId, edit) => {
+      fetch(`/updateQuestion/${id}/${questionId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          "_csrf": token,
+          "edit": edit
+        }),
+      })
+        .then((data) => {
+          window.location.reload();
+        })
+        .catch((err) => console.error(err))
+    }
+    function updateQueHTMLinsert() {
       console.log("updateQuestionFunction");
       updateQuestionHTML =
         '<form id="questionUpdate" action="/questionUpdate" method="put"></form>\
@@ -22,9 +37,7 @@
                     <span class="inline">\
                         <input value ="<%=questionbody.question%>" id="editQuestionInput" type="text" name="question" placeholder="edit question" class="w-11/12 border-soild border-2 border-blue-600 px-4 py-4 rounded-lg text-2xl text-black " form="questionUpdate">\
                     <button class="check-button" title="Done" onclick="">\
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">\
-                            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />\
-                        </svg>\
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" class="w-10 h-10"><!--! Font Awesome Pro 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64zM337 209L209 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L303 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>\
                     </button>\</span>\
                 </div>';
       var questionDiv = document.getElementById("questionField");
@@ -53,7 +66,7 @@
               <button
                 class="absolute inset-y-0 right-8"
                 title="Edit question"
-                onclick="updateQue()"
+                onclick="updateQueHTMLinsert()"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
