@@ -19,11 +19,11 @@
             <%- include('header.ejs')%>
                 <form action="/createElection" method="post" class="mt-2">
                     <input type="hidden" name="_csrf" value="<%=csrfToken%>" />
-                    <div class="flex-auto pb-2">
+                    <div class="flex-auto pb-2 p-2 hover:bg-sky-100 rounded">
                         <input type="text" name="title" placeholder="Whom to elect next?"
                             class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm">
                     </div>
-                    <div class="flex-none">
+                    <div class="flex-none pl-2">
                         <button
                             class="bg-blue-600 hover:bg-blue-800 text-white px-5 py-1.5 rounded font-medium mr-2 mb-2">Create
                             election</button>
@@ -36,7 +36,7 @@
                         </li>
                         <% } %>
                             <% } %>
-                                <div class="py-2"><a href="/signout"
+                                <div class="py-2 pl-2"><a href="/signout"
                                         class="rounded text-white py-2 px-5 bg-red-600 hover:bg-red-800">Signout</a>
                                 </div>
         </div>

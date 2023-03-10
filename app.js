@@ -225,15 +225,10 @@ app.get("/Election/:id/createQuestions", (request, response) => {
   });
 });
 
-app.get("/Question/:id", async (request, response) => {
-  const addedQuestion = await Questions.findOne({
-    where: { id: request.params.id },
-  });
-  console.log(addedQuestion);
+app.get("/addOptions", async (request, response) => {
   response.render("addOptions", {
     title: "Add options",
-    questionbody: addedQuestion,
-    questionId: request.params.id,
+    questionbody: request.session.addedQuestions, // Get the added questions from the session variable
     csrfToken: request.csrfToken(),
   });
 });
@@ -255,7 +250,7 @@ app.get("/Election/:id/editQuestions", async (request, response) => {
   });
 });
 
-app.post("/Question/:id/addOptions", async (request, response) => {
+app.post("/Question/addOptions", async (request, response) => {
   const addedOptions = request.body;
   console.log(addedOptions);
   const optionsLength = Object.keys(addedOptions).length;
@@ -287,16 +282,21 @@ app.post("/Question/:id/addOptions", async (request, response) => {
 app.post("/Election/:id/addQuestion", async (request, response) => {
   console.log("Question request body", request.body);
   try {
-    const election = await Questions.addQuestion({
-      question: request.body.question,
-      description: request.body.description,
-      electionId: request.params.id,
-    });
-    const newQuestion = await Questions.findOne({
-      where: { question: request.body.question },
-    });
-    console.log("New question is :", newQuestion);
-    return response.redirect(`/Question/${newQuestion.id}`);
+    let questions = []; // Array to store added questions
+    for (const key in request.body) {
+      if (key.startsWith("question-")) {
+        const index = key.split("-")[1];
+        const question = await Questions.addQuestion({
+          question: request.body[`question-${index}`],
+          description: request.body[`description-${index}`],
+          electionId: request.params.id,
+        });
+        questions.push(question); // Add the added question to the array
+      }
+    }
+    // Store the added questions in a session variable
+    request.session.addedQuestions = questions;
+    return response.redirect(`/addOptions`);
   } catch (error) {
     console.log(error);
     error.errors.forEach((element) => {

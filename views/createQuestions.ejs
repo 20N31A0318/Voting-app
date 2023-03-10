@@ -15,10 +15,6 @@
 <script>
     async function submitForm() {
         await document.getElementById("main-form").submit()
-        console.log("input Count is ",inputCount)
-        for (let x = 2; x <= inputCount; x++) {
-            await document.getElementById(`form-${x}`).submit()
-        }
     }
 </script>
 
@@ -31,13 +27,13 @@
 
                 <input type="hidden" name="_csrf" value="<%=csrfToken%>" form="main-form">
 
-                <div class="flex-auto pb-2">
-                    <input type="text" name="question" placeholder="Add question 1"
+                <div class="flex-auto p-2 hover:bg-sky-100 rounded">
+                    <input type="text" name="question-1" placeholder="Add question 1"
                         class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm" form="main-form">
                 </div>
 
-                <div class="flex-auto">
-                    <textarea name="description" id="description" cols="30" rows="1.18032786885"
+                <div class="flex-auto p-2 hover:bg-sky-100 rounded">
+                    <textarea name="description-1" id="description" cols="30" rows="1.18032786885"
                         placeholder="Description of the question 1"
                         class="border border-blue-600 rounded text-gray-900 w-full p-2 text-sm leading-10"
                         form="main-form"></textarea>
@@ -57,7 +53,7 @@
                 </div>
 
                 <div class="flex-none mt-2">
-                    <button
+                    <button id="submitBtn"
                         class="text-lg text-center block font-bold ease-in-out duration-300 text-white rounded py-2 px-2 bg-blue-600 hover:bg-blue-800 w-full"
                         onclick="submitForm()">Submit</button>
                 </div>
@@ -69,47 +65,32 @@
             let inputCount = 2
 
             addInputButton.addEventListener("click", () => {
-                //creating input field for csrf token
-                const csrfInput=document.createElement("input")
-                csrfInput.type="hidden"
-                csrfInput.name="_csrf"
-                csrfInput.value="<%=csrfToken%>"
-                csrfInput.setAttribute("form", `form-${inputCount}`);
-
-                //creating new form
-                const form=document.createElement("form")
-                form.method="POST"
-                form.id=`form-${inputCount}`
-                form.action='/Election/<%=electionId%>/addQuestion'
-                form.classList.add("mt-2")
 
                 //creating new input element 
                 const inputDiv = document.createElement("div")
-                inputDiv.classList.add("pb-2")
+                inputDiv.classList.add("p-2","hover:bg-sky-100","rounded")
                 const input = document.createElement("input");
                 input.type = "text";
-                input.name = `question`;
+                input.name = `question-${inputCount}`;
                 input.placeholder = `Add question ${inputCount}`;
                 input.classList.add('border', 'border-blue-600', 'rounded', 'text-gray-900', 'w-full', 'p-2', 'text-sm');
-                input.setAttribute("form", `form-${inputCount}`);
+                input.setAttribute("form", "main-form");
                 inputDiv.appendChild(input);
 
                 //creating new description element
                 const descDiv = document.createElement("div")
-                descDiv.classList.add("pb-2")
+                descDiv.classList.add("p-2","hover:bg-sky-100","rounded")
                 const descriptionBox = document.createElement("textarea");
                 descriptionBox.type = "text";
-                descriptionBox.name = `description`;
+                descriptionBox.name = `description-${inputCount}`;
                 descriptionBox.placeholder = `Description of question ${inputCount}`;
                 descriptionBox.classList.add('border', 'border-blue-600', 'rounded', 'text-gray-900', 'w-full', 'p-2', 'text-sm');
-                descriptionBox.setAttribute("form", `form-${inputCount}`);
+                descriptionBox.setAttribute("form", "main-form");
                 descDiv.appendChild(descriptionBox);
 
                 horElement = document.createElement("hr")
                 horElement.classList.add("hr-element")
 
-                inputContainer.appendChild(csrfInput)
-                inputContainer.appendChild(form)
                 inputContainer.appendChild(inputDiv)
                 inputContainer.appendChild(descDiv)
                 inputContainer.appendChild(horElement)
