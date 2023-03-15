@@ -233,43 +233,24 @@ app.get("/addOptions", async (request, response) => {
   });
 });
 
-app.get("/Election/:id/editQuestions", async (request, response) => {
-  const presentQuestions = await Questions.findOne({
-    where: { electionId: request.params.id },
-  });
-  console.log(presentQuestions);
-  const allOptions = await options.findAll({
-    where: { questionId: presentQuestions.id },
-  });
-  console.log("alloptions are", allOptions);
-  response.render("editQuestions", {
-    optionsbody: allOptions,
-    questionbody: presentQuestions,
-    title: "Edit questions",
-    csrfToken: request.csrfToken(),
-  });
-});
-
-app.post("/Question/addOptions", async (request, response) => {
-  const addedOptions = request.body;
-  console.log(addedOptions);
-  const optionsLength = Object.keys(addedOptions).length;
-  const presentQuestion = await Questions.findOne({
-    where: { id: request.params.id },
-  });
-  console.log("present question id", presentQuestion);
+app.post("/submitOptions", async (request, response) => {
+  console.log("Question request body", request.body);
   try {
-    for (let i in addedOptions) {
-      if (i === "_csrf") continue;
-      var optionValue = addedOptions[i];
-      await options.addOption({
-        title: optionValue,
-        questionId: request.params.id,
-      });
+    let questions = []; // Array to store added questions
+    for (const key in request.body) {
+      if (key.startsWith("question-")) {
+        const index = key.split("-")[1];
+        const question = await Questions.addQuestion({
+          question: request.body[`question-${index}`],
+          description: request.body[`description-${index}`],
+          electionId: request.params.id,
+        });
+        questions.push(question); // Add the added question to the array
+      }
     }
-    return response.redirect(
-      `/Election/${presentQuestion.electionId}/editQuestions`
-    );
+    // Store the added questions in a session variable
+    request.session.addedQuestions = questions;
+    return response.redirect(`/addOptions`);
   } catch (error) {
     console.log(error);
     error.errors.forEach((element) => {
@@ -278,6 +259,59 @@ app.post("/Question/addOptions", async (request, response) => {
     response.redirect("/createElection");
   }
 });
+
+app.get("/addElectors", async (request, response) => {
+  response.render("addElectors", {
+    title: "Add electors", // Get the added questions from the session variable
+    csrfToken: request.csrfToken(),
+  });
+});
+
+// app.get("/Election/:id/editQuestions", async (request, response) => {
+//   const presentQuestions = await Questions.findOne({
+//     where: { electionId: request.params.id },
+//   });
+//   console.log(presentQuestions);
+//   const allOptions = await options.findAll({
+//     where: { questionId: presentQuestions.id },
+//   });
+//   console.log("alloptions are", allOptions);
+//   response.render("editQuestions", {
+//     optionsbody: allOptions,
+//     questionbody: presentQuestions,
+//     title: "Edit questions",
+//     csrfToken: request.csrfToken(),
+//   });
+// });
+
+// app.post("/Question/addOptions", async (request, response) => {
+//   const addedOptions = request.body;
+//   console.log(addedOptions);
+//   const optionsLength = Object.keys(addedOptions).length;
+//   const presentQuestion = await Questions.findOne({
+//     where: { id: request.params.id },
+//   });
+//   console.log("present question id", presentQuestion);
+//   try {
+//     for (let i in addedOptions) {
+//       if (i === "_csrf") continue;
+//       var optionValue = addedOptions[i];
+//       await options.addOption({
+//         title: optionValue,
+//         questionId: request.params.id,
+//       });
+//     }
+//     return response.redirect(
+//       `/Election/${presentQuestion.electionId}/editQuestions`
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     error.errors.forEach((element) => {
+//       request.flash("error", element.message);
+//     });
+//     response.redirect("/createElection");
+//   }
+// });
 
 app.post("/Election/:id/addQuestion", async (request, response) => {
   console.log("Question request body", request.body);
@@ -351,25 +385,25 @@ app.put(
   }
 );
 
-app.put(
-  "/updateQuestion/:id/:questionId",
-  connectEnsureLogin.ensureLoggedIn(),
-  async (request, response) => {
-    const Election = await elections.findByPk(request.params.id);
-    const Question = await questions.findByPk(request.params.questionId)
-    const questionEdit = request.body.edit;
-    try {
-      const updatedQuestion = await Question.updateQuestion(
-        request.user.id,
-        request.user.questionId
-      );
-      return response.json(updatedElection);
-    } catch (error) {
-      console.log(error);
-      return response.status(404).json(error);
-    }
-  }
-);
+// app.put(
+//   "/updateQuestion/:id/:questionId",
+//   connectEnsureLogin.ensureLoggedIn(),
+//   async (request, response) => {
+//     const Election = await elections.findByPk(request.params.id);
+//     const Question = await questions.findByPk(request.params.questionId)
+//     const questionEdit = request.body.edit;
+//     try {
+//       const updatedQuestion = await Question.updateQuestion(
+//         request.user.id,
+//         request.user.questionId
+//       );
+//       return response.json(updatedElection);
+//     } catch (error) {
+//       console.log(error);
+//       return response.status(404).json(error);
+//     }
+//   }
+// );
 
 app.get(
   "/ViewResults",
