@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "electionId",
       });
 
-      Questions.hasMany(models.options, {
-        foreignKey: "questionId",
+      Questions.hasMany(models.QuestionOptions, {
+        foreignKey: "QueId",
         onDelete: "CASCADE",
       });
     }

@@ -15,9 +15,8 @@ const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 
-const { elections, User, Questions, options } = require("./models");
+const { elections, User, Questions, QuestionOptions } = require("./models");
 const { PassThrough } = require("stream");
-const questions = require("./models/questions");
 
 const saltRounds = 10;
 
@@ -233,39 +232,63 @@ app.get("/addOptions", async (request, response) => {
   });
 });
 
+// app.post("/submitOptions", async (request, response) => {
+//   console.log("Options request body", request.body);
+//   try {
+//     for (const key in request.body) {
+//       if (key.startsWith("q-")) {
+//         const questionIDfromRequestBody = key.split("-")[1];
+//         console.log(request.body[key])
+//         const option = await QuestionOptions.addOption({
+//           Title: request.body[key],
+//           QueId: questionIDfromRequestBody
+//         });
+//       }
+//     }
+//     // Store the added questions in a session variable\
+//     return response.redirect(`/addElectors`);
+//   } catch (error) {
+//     console.log(error);
+//     error.errors.forEach((element) => {
+//       request.flash("error", element.message);
+//     });
+//     response.redirect("/addOptions");
+//   }
+// });
+
 app.post("/submitOptions", async (request, response) => {
-  console.log("Question request body", request.body);
+  console.log("Options request body", request.body);
   try {
-    let questions = []; // Array to store added questions
     for (const key in request.body) {
-      if (key.startsWith("question-")) {
-        const index = key.split("-")[1];
-        const question = await Questions.addQuestion({
-          question: request.body[`question-${index}`],
-          description: request.body[`description-${index}`],
-          electionId: request.params.id,
+      if (key.startsWith("q-")) {
+        const questionIDfromRequestBody = key.split("-")[1];
+        const optionIndex = key.split("-")[3];
+        const optionValueKey = `q-${questionIDfromRequestBody}-option-${optionIndex}`;
+        const optionValue = request.body[optionValueKey];
+        console.log(optionValue);
+        const option = await QuestionOptions.addOption({
+          Title: optionValue,
+          QueId: questionIDfromRequestBody
         });
-        questions.push(question); // Add the added question to the array
       }
     }
     // Store the added questions in a session variable
-    request.session.addedQuestions = questions;
-    return response.redirect(`/addOptions`);
+    return response.redirect(`/addElectors`);
   } catch (error) {
     console.log(error);
     error.errors.forEach((element) => {
       request.flash("error", element.message);
     });
-    response.redirect("/createElection");
+    response.redirect("/addOptions");
   }
 });
 
 app.get("/addElectors", async (request, response) => {
-  response.render("addElectors", {
-    title: "Add electors", // Get the added questions from the session variable
+  response.render("addElectors"), {
+    title: "Add Electors",
     csrfToken: request.csrfToken(),
-  });
-});
+  }
+})
 
 // app.get("/Election/:id/editQuestions", async (request, response) => {
 //   const presentQuestions = await Questions.findOne({
@@ -328,6 +351,7 @@ app.post("/Election/:id/addQuestion", async (request, response) => {
         questions.push(question); // Add the added question to the array
       }
     }
+    console.log("idk questions are", questions)
     // Store the added questions in a session variable
     request.session.addedQuestions = questions;
     return response.redirect(`/addOptions`);
